@@ -4,6 +4,8 @@
  */
 package com.meetime.test.controller;
 
+import com.meetime.test.config.AppConfig;
+import jakarta.ejb.EJB;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,20 +30,22 @@ import org.springframework.retry.support.RetryTemplate;
  * @author edison
  */
 /*
-    https://app.hubspot.com/oauth/authorize?client_id=d2d03417-4c86-4264-bc6b-dea3e6f7a1b4&redirect_uri=http://localhost:8080/oauth/callback&scope=crm.objects.contacts.write%20oauth%20crm.objects.contacts.read
+    https://app.hubspot.com/oauth/authorize
+        ?client_id={CLIENT_ID}
+        &redirect_uri=http://localhost:8080/oauth/callback
+        &scope=crm.objects.contacts.write%20oauth%20crm.objects.contacts.read
 */
 @RestController
 @RequestMapping("/hubspot")
 public class HubSpotController {
     
     private static final Logger logger = Logger.getLogger(HubSpotController.class.getName());
-    private final RestTemplate restTemplate;// = new RestTemplate();
-    private final RetryTemplate retryTemplate;// = new RetryTemplate();
-    private static final String API_URL = "https://api.hubapi.com/crm/v3/objects/contacts";
+    private final RestTemplate restTemplate;
+    private final RetryTemplate retryTemplate;
 
-//    @Inject
-//    private AppConfig appConfig;    
-//    
+    @EJB
+    private AppConfig appConfig; 
+    
     public HubSpotController(RestTemplateBuilder restTemplateBuilder) {
         this.restTemplate = restTemplateBuilder.build();
         this.retryTemplate = createRetryTemplate();
@@ -76,8 +80,9 @@ public class HubSpotController {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
         HttpEntity<String> entity = new HttpEntity<>(headers);
-
-        ResponseEntity<String> response = restTemplate.exchange(API_URL, HttpMethod.GET, entity, String.class);
+        
+        //https://api.hubapi.com/crm/v3/objects/contacts
+        ResponseEntity<String> response = restTemplate.exchange(appConfig.getContactsUri(), HttpMethod.GET, entity, String.class);
 
         headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -89,7 +94,7 @@ public class HubSpotController {
     
     
     /*
-    http://localhost:8080/hubspot/create-contact
+    http://localhost:8080/hubspot/create-contact?access_token=CL-eitzZMhICA...
     
     Content-Type: application/json
     
@@ -104,16 +109,18 @@ public class HubSpotController {
     }    
     */
     @PostMapping("/create-contact")
-    public ResponseEntity<?> createContact(@RequestBody Map<String, Object> contactData) {
+    public ResponseEntity<?> createContact(@RequestParam("access_token") String accessToken, @RequestBody Map<String, Object> contactData) {
+        logger.log(Level.INFO, "----------------- Create Contact: {0}", contactData);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth("CMGb2-HZMhIHAAEAQAAAARi2j9AXIOmvtiUo0am9BDIUJXt-s8NY1SioJXFAWjJjkUcAZEo6MAAAAEEAAAAAAAAAAAAAAAAAgAAAAAAAAAAAACAAAAAAAOABAAAAAAAAAAAAAAAQAkIUxR_0WcMbFQ1mkRh5S6qv3cnQ6thKA25hMVIAWgBgAGjpr7YlcAA");
+        headers.setBearerAuth(accessToken);
 
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(contactData, headers);
         
         return retryTemplate.execute(context -> {
             try {
-                ResponseEntity<Map> response = restTemplate.postForEntity(API_URL, request, Map.class);
+                //https://api.hubapi.com/crm/v3/objects/contacts
+                ResponseEntity<Map> response = restTemplate.postForEntity(appConfig.getContactsUri(), request, Map.class);
                 
                 return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
             } catch (HttpClientErrorException.TooManyRequests e) {

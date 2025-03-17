@@ -86,7 +86,7 @@ public class WebhookController {
         String contactId = String.valueOf(event.get("objectId"));
         logger.log(Level.INFO, "New contact created in HubSpot! ID: {0}", contactId);
         
-        // Aqui você pode adicionar a lógica para armazenar ou processar o contato
+
     }    
 
 }
