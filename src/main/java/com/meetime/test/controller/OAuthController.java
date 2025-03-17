@@ -34,6 +34,7 @@ public class OAuthController {
     private AppConfig appConfig;    
     
     /*
+    GET
     https://app.hubspot.com/oauth/authorize
             ?client_id={CLIENT_ID}
             &redirect_uri=http://localhost:8080/oauth/callback
@@ -49,45 +50,45 @@ public class OAuthController {
         "access_token": "CL-eitzZMh..."
     }    
     */
-@GetMapping("/callback")
-public ResponseEntity<?> callback(@RequestParam("code") String code) {
-    logger.log(Level.INFO, "----------------- callback start --------------------");
-    logger.log(Level.INFO, "CODE: {0}", code);
-    
-    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-    params.add("grant_type", appConfig.getAuthorizationGrantType());
-    params.add("client_id", appConfig.getClientId());
-    params.add("client_secret", appConfig.getClientSecret());
-    params.add("redirect_uri", appConfig.getBasicUri() + "/oauth/callback");
-    params.add("code", code);
+    @GetMapping("/callback")
+    public ResponseEntity<?> callback(@RequestParam("code") String code) {
+        logger.log(Level.INFO, "----------------- callback start --------------------");
+        logger.log(Level.INFO, "CODE: {0}", code);
 
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("grant_type", appConfig.getAuthorizationGrantType());
+        params.add("client_id", appConfig.getClientId());
+        params.add("client_secret", appConfig.getClientSecret());
+        params.add("redirect_uri", appConfig.getBasicUri() + "/oauth/callback");
+        params.add("code", code);
 
-    HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-    try {
-        //https://api.hubapi.com/oauth/v1/token
-        ResponseEntity<Map> response = restTemplate.postForEntity(appConfig.getTokenUri(), request, Map.class);
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
 
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        
-        logger.log(Level.INFO, "Response: {0}", response.getBody());
-        logger.log(Level.INFO, "----------------- callback end --------------------");
-        return ResponseEntity.ok().headers(headers).body(response.getBody());
-    } catch (HttpClientErrorException e) {
-        logger.log(Level.SEVERE, "Erro ao trocar código por token: {0}", e.getResponseBodyAsString());
-        return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsString());
-    } catch (HttpServerErrorException e) {
-        logger.log(Level.SEVERE, "Erro no servidor ao trocar código por token: {0}", e.getResponseBodyAsString());
-        return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsString());
-    } catch (RestClientException e) {
-        logger.log(Level.SEVERE, "Erro ao tentar se comunicar com o servidor: {0}", e.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao tentar se comunicar com o servidor.");
-    } catch (Exception e) {
-        logger.log(Level.SEVERE, "Erro inesperado ao trocar código por token: {0}", e.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro inesperado ao trocar código por token.");
-    }
-}   
+        try {
+            //https://api.hubapi.com/oauth/v1/token
+            ResponseEntity<Map> response = restTemplate.postForEntity(appConfig.getTokenUri(), request, Map.class);
+
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            logger.log(Level.INFO, "Response: {0}", response.getBody());
+            logger.log(Level.INFO, "----------------- callback end --------------------");
+            return ResponseEntity.ok().headers(headers).body(response.getBody());
+        } catch (HttpClientErrorException e) {
+            logger.log(Level.SEVERE, "Erro ao trocar código por token: {0}", e.getResponseBodyAsString());
+            return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsString());
+        } catch (HttpServerErrorException e) {
+            logger.log(Level.SEVERE, "Erro no servidor ao trocar código por token: {0}", e.getResponseBodyAsString());
+            return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsString());
+        } catch (RestClientException e) {
+            logger.log(Level.SEVERE, "Erro ao tentar se comunicar com o servidor: {0}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao tentar se comunicar com o servidor.");
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Erro inesperado ao trocar código por token: {0}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro inesperado ao trocar código por token.");
+        }
+    }   
         
 }

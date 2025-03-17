@@ -57,6 +57,7 @@ public class HubSpotController {
     }    
     
     /*
+    GET
     http://localhost:8080/hubspot/contacts?access_token=CL-eitzZMhICA...
     
     {
@@ -113,19 +114,21 @@ public ResponseEntity<?> getContacts(@RequestParam("access_token") String access
     
     
     /*
-    http://localhost:8080/hubspot/create-contact?access_token=CL-eitzZMhICA...
-    
+    POST
+    /*
+    http://localhost:8080/hubspot/create-contact
+
     Content-Type: application/json
-    
+
     {
         "properties": {
-            "email": "exemplo@email.com",
-            "firstname": "João",
+            "email": "amanda@email.com",
+            "firstname": "Amanda",
             "lastname": "Silva",
-            "phone": "+55 11 99999-8888",
-            "company": "Empresa X"
+            "phone": "55499999988888",
+            "company": "Empresa ContactCenter"
         }
-    }    
+    }
     */
 @PostMapping("/create-contact")
 public ResponseEntity<?> createContact(@RequestParam("access_token") String accessToken, @RequestBody Map<String, Object> contactData) {
