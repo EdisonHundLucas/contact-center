@@ -27,7 +27,7 @@ Pacote adicional utilizado: jakarta.ejb para o uso da anotação @EJB, que injet
 ```
 
 ### 3. **Configuração do Ambiente**
-Edite o arquivo `application.properties` e insira as credenciais hubspot.client-id e hubspot.client-secret necessárias para a integração com o HubSpot.
+Edite o arquivo `application.properties` e insira as credenciais **hubspot.client-id**, **hubspot.client-secret** e **hubspot.scope** necessárias para a integração com o HubSpot.
 Por padrão, está configurada a URL de localhost, que deverá ser editada para a URL a ser definida para o sistema.
 
 Exemplo de `application.properties`:
@@ -36,6 +36,10 @@ app.name=ContactCenter
 app.basic-uri=http://localhost:8080
 hubspot.client-id={CLIENT_ID}
 hubspot.client-secret={CLIENT_SECRET}
+hubspot.scope=oauth%20crm.objects.contacts.write%20crm.objects.contacts.read
+hubspot.authorization-grant-type=authorization_code
+hubspot.contacts-uri=https://api.hubapi.com/crm/v3/objects/contacts
+hubspot.token-uri=https://api.hubapi.com/oauth/v1/token
 ```
 
 ### 4. **Executar a Aplicação**
