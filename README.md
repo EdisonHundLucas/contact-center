@@ -52,3 +52,37 @@ Após a inicialização, a API estará disponível em:
 http://localhost:8080
 ```
 
+## Configurações no HubSpot
+
+[HubSpot](https://www.hubspot.com/)
+
+### Criar uma conta de desenvolvedor
+1. Acesse a [HubSpot](https://www.hubspot.com/) e crie uma conta de desenvolvedor.
+2. Em **Aplicativos**:
+   - Criar um Aplicativo.
+   - Em **Informações Básicas / Autenticação**:
+     - Nesse ponto pode-se identificar:
+       - **ID do cliente (client_id)**
+       - **Segredo do cliente (secret_id)**
+     - Adicionar a URL de redirecionamento:
+       ```
+       http://localhost:8080/oauth/callback
+       ```
+     - Adicionar Escopos:
+       ```
+       crm.objects.contacts.read
+       crm.objects.contacts.write
+       oauth
+       ```
+
+### Criar uma conta de teste de desenvolvedor
+1. Em **Testar contas**:
+   - Criar uma conta de teste de desenvolvedor.
+   - Nessa conta serão feitas as alterações de acordo com os escopos cadastrados.
+   - Nesse projeto, serão cadastrados e listados os contatos.
+2. Para acessar a conta de desenvolvedor:
+   - No **menu do usuário / Conta**, selecione a conta de desenvolvedor.
+3. Na conta de desenvolvedor, vá para:
+   - **CRM / Contatos**
+
+
