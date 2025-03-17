@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
+import org.springframework.http.HttpStatus;
 
 /**
  *
@@ -68,25 +69,38 @@ public class WebhookController {
             String payloadString = objectMapper.writeValueAsString(payload);
             logger.log(Level.INFO, "Payload String: {0}", payloadString);
         } catch (JsonProcessingException e) {
+            logger.log(Level.SEVERE, "Erro ao processar o payload JSON: {0}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build(); 
         }
 
-        for (Map<String, Object> event : payload) {
-            String eventType = (String) event.get("subscriptionType");
+        try {
+            for (Map<String, Object> event : payload) {
+                String eventType = (String) event.get("subscriptionType");
 
-            if ("contact.creation".equals(eventType)) {
-                this.processContactCreation(event);
+                if ("contact.creation".equals(eventType)) {
+                    this.processContactCreation(event);
+                }
             }
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Erro ao processar eventos do webhook: {0}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-        
+
         logger.log(Level.INFO, "----------------- Webhook end --------------------");
         return ResponseEntity.ok().build();
     }
 
     private void processContactCreation(Map<String, Object> event) {
-        String contactId = String.valueOf(event.get("objectId"));
-        logger.log(Level.INFO, "New contact created in HubSpot! ID: {0}", contactId);
-        
+        try {
+            String contactId = String.valueOf(event.get("objectId"));
+            logger.log(Level.INFO, "Novo contato criado em HubSpot! ID: {0}", contactId);
 
+
+
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Erro ao processar a criação do contato: {0}", e.getMessage());
+            throw new RuntimeException("Erro ao processar a criação do contato", e);
+        }
     }    
 
 }

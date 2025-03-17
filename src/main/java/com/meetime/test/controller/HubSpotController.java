@@ -13,6 +13,7 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.retry.support.RetryTemplate;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestClientException;
 
 /**
  *
@@ -46,6 +49,8 @@ public class HubSpotController {
     @EJB
     private AppConfig appConfig; 
     
+    //Cria uma instância de RestTemplate
+    //Inicializa o RetryTemplate com a lógica de repetição (Rate limit)
     public HubSpotController(RestTemplateBuilder restTemplateBuilder) {
         this.restTemplate = restTemplateBuilder.build();
         this.retryTemplate = createRetryTemplate();
@@ -73,24 +78,38 @@ public class HubSpotController {
         ]
     }    
     */
-    @GetMapping("/contacts")
-    public ResponseEntity<?> getContacts(@RequestParam("access_token") String accessToken) {
-        logger.log(Level.INFO, "----------------- Contacts start --------------------");
-        
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(accessToken);
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        
+@GetMapping("/contacts")
+public ResponseEntity<?> getContacts(@RequestParam("access_token") String accessToken) {
+    logger.log(Level.INFO, "----------------- Contacts start --------------------");
+    
+    HttpHeaders headers = new HttpHeaders();
+    headers.setBearerAuth(accessToken);
+    HttpEntity<String> entity = new HttpEntity<>(headers);
+    
+    try {
         //https://api.hubapi.com/crm/v3/objects/contacts
         ResponseEntity<String> response = restTemplate.exchange(appConfig.getContactsUri(), HttpMethod.GET, entity, String.class);
 
         headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        logger.log(Level.INFO,"Response: {0}", response.getBody());
+        logger.log(Level.INFO, "Response: {0}", response.getBody());
         logger.log(Level.INFO, "----------------- Contacts end --------------------");
         return ResponseEntity.ok().headers(headers).body(response.getBody());
+    } catch (HttpClientErrorException e) {
+        logger.log(Level.SEVERE, "Erro ao buscar contatos: {0}", e.getResponseBodyAsString());
+        return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsString());
+    } catch (HttpServerErrorException e) {
+        logger.log(Level.SEVERE, "Erro no servidor ao buscar contatos: {0}", e.getResponseBodyAsString());
+        return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsString());
+    } catch (RestClientException e) {
+        logger.log(Level.SEVERE, "Erro ao tentar se comunicar com o servidor: {0}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao tentar se comunicar com o servidor.");
+    } catch (Exception e) {
+        logger.log(Level.SEVERE, "Erro inesperado ao buscar contatos: {0}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro inesperado ao buscar contatos.");
     }
+}
     
     
     /*
@@ -108,32 +127,45 @@ public class HubSpotController {
         }
     }    
     */
-    @PostMapping("/create-contact")
-    public ResponseEntity<?> createContact(@RequestParam("access_token") String accessToken, @RequestBody Map<String, Object> contactData) {
-        logger.log(Level.INFO, "----------------- Create start --------------------");
-        logger.log(Level.INFO, "Contact: {0}", contactData);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(accessToken);
+@PostMapping("/create-contact")
+public ResponseEntity<?> createContact(@RequestParam("access_token") String accessToken, @RequestBody Map<String, Object> contactData) {
+    logger.log(Level.INFO, "----------------- Create start --------------------");
+    logger.log(Level.INFO, "Contact: {0}", contactData);
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
+    headers.setBearerAuth(accessToken);
 
-        HttpEntity<Map<String, Object>> request = new HttpEntity<>(contactData, headers);
-        
-        return retryTemplate.execute(context -> {
-            try {
-                //https://api.hubapi.com/crm/v3/objects/contacts
-                ResponseEntity<Map> response = restTemplate.postForEntity(appConfig.getContactsUri(), request, Map.class);
-                logger.log(Level.INFO,"Response: {0}", response.getBody());
-                logger.log(Level.INFO, "----------------- Create end ----------------");
-                return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
-            } catch (HttpClientErrorException.TooManyRequests e) {
-                throw new RuntimeException("Rate limit excedido. Tentando novamente...", e);
-            }
-        });
-    }
+    HttpEntity<Map<String, Object>> request = new HttpEntity<>(contactData, headers);
+    
+    return retryTemplate.execute(context -> {
+        try {
+            //https://api.hubapi.com/crm/v3/objects/contacts
+            ResponseEntity<Map> response = restTemplate.postForEntity(appConfig.getContactsUri(), request, Map.class);
+            logger.log(Level.INFO,"Response: {0}", response.getBody());
+            logger.log(Level.INFO, "----------------- Create end ----------------");
+            return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
+        } catch (HttpClientErrorException.TooManyRequests e) {
+            logger.log(Level.SEVERE, "Rate limit excedido. Tentando novamente...", e);
+            throw new RuntimeException("Rate limit excedido. Tentando novamente...", e);
+        } catch (HttpClientErrorException e) {
+            logger.log(Level.SEVERE, "Erro ao criar contato: {0}", e.getResponseBodyAsString());
+            return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsString());
+        } catch (HttpServerErrorException e) {
+            logger.log(Level.SEVERE, "Erro no servidor ao criar contato: {0}", e.getResponseBodyAsString());
+            return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsString());
+        } catch (RestClientException e) {
+            logger.log(Level.SEVERE, "Erro ao tentar se comunicar com o servidor: {0}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao tentar se comunicar com o servidor.");
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Erro inesperado ao criar contato: {0}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro inesperado ao criar contato.");
+        }
+    });
+}
 
     private RetryTemplate createRetryTemplate() {
         return RetryTemplate.builder()
-            .maxAttempts(5)
+            .maxAttempts(5) //Define o número máximo de tentativas (incluindo a primeira).
             .fixedBackoff(2000) // Aguarda 2 segundos antes de tentar novamente
             .retryOn(HttpClientErrorException.TooManyRequests.class)
             .build();
