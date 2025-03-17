@@ -56,7 +56,7 @@ public class OAuthController {
         params.add("grant_type", appConfig.getAuthorizationGrantType());
         params.add("client_id", appConfig.getClientId());
         params.add("client_secret", appConfig.getClientSecret());
-        params.add("redirect_uri", appConfig.getRedirectUri());
+        params.add("redirect_uri", appConfig.getBasicUri() + "/oauth/callback");
         params.add("code", code);
 
         HttpHeaders headers = new HttpHeaders();

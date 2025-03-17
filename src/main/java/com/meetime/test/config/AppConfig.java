@@ -14,9 +14,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AppConfig {
 
-    @Value("${spring.application.name}")
+    @Value("${app.name}")
     private String appName;
 
+    @Value("${app.basic-uri}")
+    private String basicUri;    
+    
     @Value("${hubspot.client-id}")
     private String clientId;
 
@@ -28,9 +31,6 @@ public class AppConfig {
 
     @Value("${hubspot.authorization-grant-type}")
     private String authorizationGrantType;
-
-    @Value("${hubspot.redirect-uri}")
-    private String redirectUri;
 
     @Value("${hubspot.contacts-uri}")
     private String contactsUri;
@@ -75,12 +75,12 @@ public class AppConfig {
         this.authorizationGrantType = authorizationGrantType;
     }
 
-    public String getRedirectUri() {
-        return redirectUri;
+    public String getBasicUri() {
+        return basicUri;
     }
 
-    public void setRedirectUri(String redirectUri) {
-        this.redirectUri = redirectUri;
+    public void setBasicUri(String basicUri) {
+        this.basicUri = basicUri;
     }
 
     public String getContactsUri() {
