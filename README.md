@@ -27,7 +27,7 @@ Pacote adicional utilizado: jakarta.ejb para o uso da anotação @EJB, que injet
 ```
 
 ### 3. **Configuração do Ambiente**
-Edite o arquivo `application.properties` e insira as credenciais hubspot.client-id e hubspot.client-secret necessárias para a integração com o HubSpot.
+Edite o arquivo `application.properties` e insira as credenciais **hubspot.client-id**, **hubspot.client-secret** e **hubspot.scope** necessárias para a integração com o HubSpot.
 Por padrão, está configurada a URL de localhost, que deverá ser editada para a URL a ser definida para o sistema.
 
 Exemplo de `application.properties`:
@@ -36,6 +36,10 @@ app.name=ContactCenter
 app.basic-uri=http://localhost:8080
 hubspot.client-id={CLIENT_ID}
 hubspot.client-secret={CLIENT_SECRET}
+hubspot.scope=oauth%20crm.objects.contacts.write%20crm.objects.contacts.read
+hubspot.authorization-grant-type=authorization_code
+hubspot.contacts-uri=https://api.hubapi.com/crm/v3/objects/contacts
+hubspot.token-uri=https://api.hubapi.com/oauth/v1/token
 ```
 
 ### 4. **Executar a Aplicação**
@@ -102,5 +106,59 @@ http://localhost:8080
    - No **menu do usuário / Conta**, selecione a conta de desenvolvedor.
 3. Na conta de desenvolvedor, vá para:
    - **CRM / Contatos**
+
+## Gerar o Token de Autorização:
+
+### 1. Fluxo do OAuth 2.0
+O fluxo de autorização do HubSpot exige que o usuário:
+
+- Acesse a URL de autorização.
+- Faça login na conta do HubSpot.
+- Selecione a conta à qual deseja conceder acesso.
+- Autorize as permissões solicitadas.
+
+Exemplo de URL de autorização desse projeto:
+```
+https://app.hubspot.com/oauth/authorize?client_id={CLIENT_ID}&redirect_uri=http://localhost:8080/oauth/callback&scope=crm.objects.contacts.write%20oauth%20crm.objects.contacts.read
+```
+
+Após selecionar a conta de teste, será redirecionado para o endpoint:
+```
+http://localhost:8080/oauth/callback?code=d2d03417-4c86...
+```
+que retornará um JSON como este:
+```
+{
+    "token_type": "bearer",
+    "refresh_token": "na1-d4eb-...",
+    "access_token": "CN2fvqnaMhI...",
+    "expires_in": 1800
+}
+```
+
+O parâmetro **access_token** será usado nos cabeçalhos dos demais endpoints com a chave **Token**, como o GET contacts e o POST create-contact.
+
+### Exemplo de requisições
+
+#### **GET Contacts**
+```
+Method: GET
+URL: http://localhost:8080/hubspot/contacts
+Headers: 
+    Token: CN2fvqnaMhIH...
+```
+
+#### **POST Create Contact**
+```
+Method: POST
+URL: http://localhost:8080/hubspot/create-contact
+Headers: 
+    Content-Type: application/json
+    Token: CN2fvqnaMhIH...
+```
+
+## Testes com Postman
+
+Arquivo exportado do Postman com os endpoints citados acima, incluindo o endpoint de webhook para testes diretos. [Meetime.postman_collection.json](https://github.com/EdisonHundLucas/contact-center/blob/master/Meetime.postman_collection.json).
 
 
