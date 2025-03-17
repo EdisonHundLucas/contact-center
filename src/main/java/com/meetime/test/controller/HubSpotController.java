@@ -58,7 +58,10 @@ public class HubSpotController {
     
     /*
     GET
-    http://localhost:8080/hubspot/contacts?access_token=CL-eitzZMhICA...
+    http://localhost:8080/hubspot/contacts
+    
+    HEADERS:
+    Token: CN2fvqnaMhIHAAEA....
     
     {
         "results": [
@@ -118,7 +121,9 @@ public ResponseEntity<?> getContacts(@RequestHeader("Token") String accessToken)
     /*
     http://localhost:8080/hubspot/create-contact
 
+    HEADERS:
     Content-Type: application/json
+    Token: CN2fvqnaMhIHAAEA....
 
     {
         "properties": {
