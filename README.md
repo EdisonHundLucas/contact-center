@@ -73,7 +73,25 @@ http://localhost:8080
        crm.objects.contacts.read
        crm.objects.contacts.write
        oauth
+   - Criar um **Webhook**
+     - No menu **Webhooks**
+       - Cadastre uma URL de destino onde o HubSpot enviará uma carga útil JSON com detalhes sobre os eventos quando eles forem disparados.
+       O webhook não funciona com URLs de teste (como `localhost`). Para contornar isso, você pode usar o [ngrok](https://ngrok.com/).
+       O **ngrok** é uma ferramenta que cria um túnel seguro entre a internet e um servidor local em sua máquina. Ele permite expor serviços rodando em `localhost`, gerando uma URL pública que pode ser acessada de qualquer lugar.
+   
+    	- Como usar o ngrok?
+    		 1. Instale o ngrok a partir do site oficial: [ngrok.com/download](https://ngrok.com/download).
+    		 2. Execute o seguinte comando no terminal:
+		   ```bash
+		   ngrok http http://localhost:8080
+   
+   		- Exemplo de uma URL criada pelo ngrok:
+       ```bash
+       https://https://deee-...caf5.ngrok-free.app
+
+     - Cadastrar o Webhook (exemplo):
        ```
+       - http://localhost:8080/webhook -> https://https://deee-...caf5.ngrok-free.app/webhook
 
 ### Criar uma conta de teste de desenvolvedor
 1. Em **Testar contas**:
