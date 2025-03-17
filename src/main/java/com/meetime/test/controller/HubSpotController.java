@@ -20,11 +20,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.retry.support.RetryTemplate;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClientException;
 
@@ -80,7 +80,7 @@ public class HubSpotController {
     }    
     */
 @GetMapping("/contacts")
-public ResponseEntity<?> getContacts(@RequestParam("access_token") String accessToken) {
+public ResponseEntity<?> getContacts(@RequestHeader("Token") String accessToken) {
     logger.log(Level.INFO, "----------------- Contacts start --------------------");
     
     HttpHeaders headers = new HttpHeaders();
@@ -131,7 +131,7 @@ public ResponseEntity<?> getContacts(@RequestParam("access_token") String access
     }
     */
 @PostMapping("/create-contact")
-public ResponseEntity<?> createContact(@RequestParam("access_token") String accessToken, @RequestBody Map<String, Object> contactData) {
+public ResponseEntity<?> createContact(@RequestHeader("Token") String accessToken, @RequestBody Map<String, Object> contactData) {
     logger.log(Level.INFO, "----------------- Create start --------------------");
     logger.log(Level.INFO, "Contact: {0}", contactData);
     HttpHeaders headers = new HttpHeaders();
