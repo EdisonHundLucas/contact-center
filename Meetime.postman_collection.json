@@ -1,0 +1,105 @@
+{
+	"info": {
+		"_postman_id": "67ad3eb3-ae47-4ec2-9c0c-c9b29d3b14e6",
+		"name": "Meetime",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "136587"
+	},
+	"item": [
+		{
+			"name": "Get Contacts",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Token",
+						"value": "CN2fvqnaMhIHAAEAQAAAARi2j9AXIOmvtiUo0am9BDIUni7uJqRYVorJPxhkVpj24nAT1nU6MAAAAEEAAAAAAAAAAAAAAAAAgAAAAAAAAAAAACAAAAAAAOABAAAAAAAAAAAAAAAQAkIUAepMQLnvkictRjoIOBVFd8xo1tFKA25hMVIAWgBgAGjpr7YlcAA",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/hubspot/contacts",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"hubspot",
+						"contacts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Contact",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Token",
+						"value": "CN2fvqnaMhIHAAEAQAAAARi2j9AXIOmvtiUo0am9BDIUni7uJqRYVorJPxhkVpj24nAT1nU6MAAAAEEAAAAAAAAAAAAAAAAAgAAAAAAAAAAAACAAAAAAAOABAAAAAAAAAAAAAAAQAkIUAepMQLnvkictRjoIOBVFd8xo1tFKA25hMVIAWgBgAGjpr7YlcAA",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"properties\": {\n        \"email\": \"amanda4@email.com\",\n        \"firstname\": \"Amanda4\",\n        \"lastname\": \"Morimoto\",\n        \"phone\": \"5549991759978\",\n        \"company\": \"Empresa ContactCenter\"\n    }\n} ",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/hubspot/create-contact",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"hubspot",
+						"create-contact"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Webhook",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n    {\n        \"eventId\": 3400564480,\n        \"subscriptionId\": 3329277,\n        \"portalId\": 49547190,\n        \"appId\": 9393361,\n        \"occurredAt\": 1742077073905,\n        \"subscriptionType\": \"contact.creation\",\n        \"attemptNumber\": 0,\n        \"objectId\": 106314056576,\n        \"changeFlag\": \"CREATED\",\n        \"changeSource\": \"INTEGRATION\",\n        \"sourceId\": \"9393361\"\n    }\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/webhook",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"webhook"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
