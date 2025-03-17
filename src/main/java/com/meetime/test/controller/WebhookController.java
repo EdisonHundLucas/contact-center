@@ -7,6 +7,7 @@ package com.meetime.test.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.meetime.test.process.PayloadEvent;
 import org.springframework.http.ResponseEntity;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 /**
@@ -23,21 +25,7 @@ import org.springframework.http.HttpStatus;
  * @author edison
  */
 /*
-http://localhost:8080/hubspot/create-contact
-
-Content-Type: application/json
-
-{
-    "properties": {
-        "email": "amanda@email.com",
-        "firstname": "Amanda",
-        "lastname": "Silva",
-        "phone": "55499999988888",
-        "company": "Empresa ContactCenter"
-    }
-} 
-
-Answer:
+Payload Sample:
 [
     {
         "eventId": 3400564480,
@@ -60,6 +48,9 @@ public class WebhookController {
 
     private static final Logger logger = Logger.getLogger(WebhookController.class.getName());
     
+    @Autowired
+    private PayloadEvent payloadEvent;    
+    
     @PostMapping
     public ResponseEntity<Void> receiveWebhook(@RequestBody List<Map<String, Object>> payload) {
         logger.log(Level.INFO, "----------------- Webhook start --------------------");
@@ -76,9 +67,8 @@ public class WebhookController {
         try {
             for (Map<String, Object> event : payload) {
                 String eventType = (String) event.get("subscriptionType");
-
                 if ("contact.creation".equals(eventType)) {
-                    this.processContactCreation(event);
+                    payloadEvent.processContactCreation(event);
                 }
             }
         } catch (Exception e) {
@@ -89,18 +79,5 @@ public class WebhookController {
         logger.log(Level.INFO, "----------------- Webhook end --------------------");
         return ResponseEntity.ok().build();
     }
-
-    private void processContactCreation(Map<String, Object> event) {
-        try {
-            String contactId = String.valueOf(event.get("objectId"));
-            logger.log(Level.INFO, "Novo contato criado em HubSpot! ID: {0}", contactId);
-
-
-
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, "Erro ao processar a criação do contato: {0}", e.getMessage());
-            throw new RuntimeException("Erro ao processar a criação do contato", e);
-        }
-    }    
 
 }
