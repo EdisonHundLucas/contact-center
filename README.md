@@ -4,7 +4,7 @@
 O **ContactCenter** é um projeto desenvolvido utilizando o framework **Spring Boot**, com integração direta à API do **HubSpot** para gestão de contatos. O objetivo é permitir o processamento eficiente de informações e facilitar a comunicação entre sistemas.
 
 ## Tecnologias Utilizadas
-- **Framework:** Spring Boot
+- **Framework:** Spring Boot 3.4.3
 - **Versão do Java:** JDK 17 (Target Release 17)
 - **IDE utilizada:** NetBeans 25
 - **Integração:** API do HubSpot
@@ -91,7 +91,7 @@ http://localhost:8080
 
      - Cadastrar o Webhook (exemplo):
        ```
-       - http://localhost:8080/webhook -> https://https://deee-...caf5.ngrok-free.app/webhook
+       http://localhost:8080/webhook -> https://https://deee-...caf5.ngrok-free.app/webhook
 
 ### Criar uma conta de teste de desenvolvedor
 1. Em **Testar contas**:
