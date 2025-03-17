@@ -110,7 +110,8 @@ public class HubSpotController {
     */
     @PostMapping("/create-contact")
     public ResponseEntity<?> createContact(@RequestParam("access_token") String accessToken, @RequestBody Map<String, Object> contactData) {
-        logger.log(Level.INFO, "----------------- Create Contact: {0}", contactData);
+        logger.log(Level.INFO, "----------------- Create start --------------------");
+        logger.log(Level.INFO, "Contact: {0}", contactData);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(accessToken);
@@ -121,7 +122,8 @@ public class HubSpotController {
             try {
                 //https://api.hubapi.com/crm/v3/objects/contacts
                 ResponseEntity<Map> response = restTemplate.postForEntity(appConfig.getContactsUri(), request, Map.class);
-                
+                logger.log(Level.INFO,"Response: {0}", response.getBody());
+                logger.log(Level.INFO, "----------------- Create end ----------------");
                 return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
             } catch (HttpClientErrorException.TooManyRequests e) {
                 throw new RuntimeException("Rate limit excedido. Tentando novamente...", e);
