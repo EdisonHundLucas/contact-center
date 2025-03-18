@@ -155,6 +155,16 @@ URL: http://localhost:8080/hubspot/create-contact
 Headers: 
     Content-Type: application/json
     Token: CN2fvqnaMhIH...
+Body:
+{
+    "properties": {
+        "email": "amanda@email.com",
+        "firstname": "Amanda",
+        "lastname": "Silva",
+        "phone": "5549999998888",
+        "company": "Empresa ContactCenter"
+    }
+} 
 ```
 
 ## Testes com Postman
